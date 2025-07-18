@@ -16,4 +16,4 @@ dependencies = [
 where = ["src"]
 
 [tool.setuptools] 
-py-modules = ["unified-model-caller"]
+py-modules = ["unified_model_caller"]
