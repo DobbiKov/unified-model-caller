@@ -1,5 +1,5 @@
 import os
-from typing import Callable
+import requests
 import openai
 import anthropic
 from google import genai
@@ -54,7 +54,7 @@ class LLMCaller:
         self.model = model
 
     def _dispatch(self, prompt: str) -> str:
-        """Route *tokens[idx]* to the appropriate renderer."""
+        """Route *services[idx]* to the appropriate caller."""
         handler = self._handlers.get(self.service)
         if handler is None:
             raise RuntimeError(f"Didn't find an appropriate handler for the {self.service} service")
@@ -126,7 +126,16 @@ class LLMCaller:
     @_handler([Service.Aristote])
     def _call_aristote(self, prompt: str) -> str:
         """Handles the API call to Artistote models"""
-        return ""
+        aristote_API_ENDPOINT = "https://aristote-dispatcher.mydocker-run-vd.centralesupelec.fr/v1/chat/completions"
+        model = self.model
+        # default model: "casperhansen/llama-3.3-70b-instruct-awq" 
+        data = {
+            "model": model, 
+            "messages": [{"role": "user", "content":prompt}],  
+        }
+        response = requests.post(aristote_API_ENDPOINT, json=data)
+        return response.json().get("choices")[0].get("message").get("content")
+
 
     @_handler([Service.xAI])
     def _call_unsupported(self, prompt: str) -> str:
