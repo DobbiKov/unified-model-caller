@@ -2,6 +2,8 @@ import os
 import requests
 import openai
 import anthropic
+import xai_sdk
+from xai_sdk.chat import user as xai_user
 from google import genai
 from google.genai import types as g_types
 
@@ -40,7 +42,7 @@ class LLMCaller:
     # _handlers: dict[Service, Callable[[str], str]] = {}
     _handlers = {}
 
-    def __init__(self, service: str, model: str):
+    def __init__(self, service: str, model: str, api_key: str = ""):
         """
         Initializes the LLMCaller.
 
@@ -52,6 +54,7 @@ class LLMCaller:
         """
         self.service = Service.from_str(service.lower())
         self.model = model
+        self.api_key = api_key
 
     def _dispatch(self, prompt: str) -> str:
         """Route *services[idx]* to the appropriate caller."""
@@ -63,9 +66,7 @@ class LLMCaller:
     @_handler([Service.OpenAI])
     def _call_openai(self, prompt: str) -> str:
         """Handles the API call to OpenAI."""
-        if not os.getenv("OPENAI_API_KEY"):
-            raise ValueError("OPENAI_API_KEY environment variable not set.")
-        client = openai.OpenAI()
+        client = openai.OpenAI(api_key=self.api_key)
         response = client.chat.completions.create(
             model=self.model,
             messages=[{"role": "user", "content": prompt}]
@@ -78,10 +79,7 @@ class LLMCaller:
     @_handler([Service.Anthropic])
     def _call_anthropic(self, prompt: str) -> str:
         """Handles the API call to Anthropic."""
-        if not os.getenv("ANTHROPIC_API_KEY"):
-            raise ValueError("ANTHROPIC_API_KEY environment variable not set.")
-
-        client = anthropic.Anthropic()
+        client = anthropic.Anthropic(api_key=self.api_key)
         messages = [anthropic.types.MessageParam(content=prompt, role='user')]
         response = client.messages.create(
             max_tokens=10000,
@@ -96,9 +94,7 @@ class LLMCaller:
     @_handler([Service.Google])
     def _call_google(self, prompt: str) -> str:
         """Handles the API call to Google's Generative AI."""
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise ValueError("GOOGLE_API_KEY environment variable not set.")
+        api_key = self.api_key
 
         client = genai.Client(api_key=api_key)
 
@@ -138,6 +134,17 @@ class LLMCaller:
 
 
     @_handler([Service.xAI])
+    def _call_xai(self, prompt: str) -> str:
+        client = xai_sdk.Client(api_key=self.api_key)
+
+        response = client.chat.create(
+            model=self.model,
+            messages=[
+                xai_user(prompt)
+            ],
+        ).sample()
+        return response.content
+
     def _call_unsupported(self, prompt: str) -> str:
         """Handles calls to services that are not yet implemented."""
         raise NotImplementedError(
