@@ -2,6 +2,13 @@
 
 A small lightweight library for unified LLMs callings.
 
+## Supported services 
+- Aristote
+- Google (gemini)
+- Anthropic (claude)
+- OpenAI (gpt)
+- xAI (grok)
+
 ## Installation 
 ### Via `pip`:
 ```sh
