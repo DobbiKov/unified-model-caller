@@ -20,3 +20,10 @@ class Service(str, enum.Enum):
     def __str__(self) -> str:
         return self.value
 
+service_cooldown = { # in ms
+        Service.Aristote:   0,
+        Service.Anthropic:  5000,
+        Service.OpenAI:     5000,
+        Service.Google:     5000,
+        Service.xAI:        5000
+}

@@ -1,3 +1,4 @@
+import time
 import os
 import requests
 import openai
@@ -6,6 +7,7 @@ import xai_sdk
 from xai_sdk.chat import user as xai_user
 from google import genai
 from google.genai import types as g_types
+from enums import service_cooldown
 
 
 from unified_model_caller.enums import Service
@@ -151,6 +153,12 @@ class LLMCaller:
             f"The service '{self.service}' is recognized but not yet implemented."
         )
 
+    def wait_cooldown(self) -> None:
+        """
+        Waits an amount of time required by service to respect the limits.
+        """
+        cooldown = service_cooldown[self.service]
+        time.sleep(cooldown/1000) # /1000 because sleep takes seconds
 
     def call(self, prompt: str) -> str:
         """
