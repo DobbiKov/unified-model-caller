@@ -7,10 +7,9 @@ import xai_sdk
 from xai_sdk.chat import user as xai_user
 from google import genai
 from google.genai import types as g_types
-from enums import service_cooldown
 
 
-from unified_model_caller.enums import Service
+from unified_model_caller.enums import Service, service_cooldown
 from unified_model_caller.errors import ApiCallError
 
 def _collect_handlers(cls):
