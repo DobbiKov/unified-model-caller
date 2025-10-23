@@ -13,3 +13,8 @@ class ApiCallError(Exception):
     def __init__(self, message: str):
         super().__init__(message)
 
+
+class ModelOverloadedError(Exception):
+    """Error raised when a model reports being overloaded"""
+    def __init__(self, message: str):
+        super().__init__(message)

@@ -10,7 +10,8 @@ from google.genai import types as g_types
 
 
 from unified_model_caller.enums import Service, service_cooldown
-from unified_model_caller.errors import ApiCallError
+from unified_model_caller.errors import ApiCallError, ModelOverloadedError
+from google.api_core import exceptions as google_exceptions
 
 def _collect_handlers(cls):
     cls._handlers = {}
@@ -114,9 +115,19 @@ class LLMCaller:
 
             return response.text or "" 
         
+        except google_exceptions.ResourceExhausted as e:
+            raise ModelOverloadedError(f"Gemini model overloaded: {e}") from e
+        except google_exceptions.TooManyRequests as e:
+            error_msg = str(e)
+            if "overloaded" in error_msg.lower():
+                raise ModelOverloadedError(f"Gemini model overloaded: {error_msg}") from e
+            raise ApiCallError(f"Gemini API call failed: {error_msg}") from e
         except Exception as e:
+            error_msg = str(e)
+            if "overloaded" in error_msg.lower():
+                raise ModelOverloadedError(f"Gemini model overloaded: {error_msg}") from e
             print(f"Error communicating with Gemini API: {e}")
-            raise ApiCallError(f"Gemini API call failed: {e}")
+            raise ApiCallError(f"Gemini API call failed: {e}") from e
 
 
 
