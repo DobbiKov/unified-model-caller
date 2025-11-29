@@ -1,17 +1,8 @@
 import time
-import os
-import requests
-import openai
-import anthropic
-import xai_sdk
-from xai_sdk.chat import user as xai_user
-from google import genai
-from google.genai import types as g_types
 
 
 from unified_model_caller.enums import Service, service_cooldown
 from unified_model_caller.errors import ApiCallError, ModelOverloadedError
-from google.api_core import exceptions as google_exceptions
 
 def _collect_handlers(cls):
     cls._handlers = {}
@@ -68,6 +59,7 @@ class LLMCaller:
     @_handler([Service.OpenAI])
     def _call_openai(self, prompt: str) -> str:
         """Handles the API call to OpenAI."""
+        import openai
         client = openai.OpenAI(api_key=self.api_key)
         response = client.chat.completions.create(
             model=self.model,
@@ -81,6 +73,7 @@ class LLMCaller:
     @_handler([Service.Anthropic])
     def _call_anthropic(self, prompt: str) -> str:
         """Handles the API call to Anthropic."""
+        import anthropic
         client = anthropic.Anthropic(api_key=self.api_key)
         messages = [anthropic.types.MessageParam(content=prompt, role='user')]
         response = client.messages.create(
@@ -96,6 +89,9 @@ class LLMCaller:
     @_handler([Service.Google])
     def _call_google(self, prompt: str) -> str:
         """Handles the API call to Google's Generative AI."""
+        from google import genai
+        from google.genai import types as g_types
+        from google.api_core import exceptions as google_exceptions
         api_key = self.api_key
 
         client = genai.Client(api_key=api_key)
@@ -134,6 +130,7 @@ class LLMCaller:
     @_handler([Service.Aristote])
     def _call_aristote(self, prompt: str) -> str:
         """Handles the API call to Artistote models"""
+        import requests
         aristote_API_ENDPOINT = "https://aristote-dispatcher.mydocker-run-vd.centralesupelec.fr/v1/chat/completions"
         model = self.model
         # default model: "casperhansen/llama-3.3-70b-instruct-awq" 
@@ -147,6 +144,8 @@ class LLMCaller:
 
     @_handler([Service.xAI])
     def _call_xai(self, prompt: str) -> str:
+        import xai_sdk
+        from xai_sdk.chat import user as xai_user
         client = xai_sdk.Client(api_key=self.api_key)
 
         response = client.chat.create(
