@@ -37,3 +37,6 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+## Roadmap
+1. add ollama support
