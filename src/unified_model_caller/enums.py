@@ -4,7 +4,7 @@ from unified_model_caller.errors import InvalidServiceError
 
 class Service(str, enum.Enum):
     """Enumeration for supported languages."""
-    Aristote = "Aristote"
+    AristoteOnMyDocker = "AristoteOnMyDocker"
     Anthropic = "Anthropic"
     OpenAI = "OpenAI"
     Google = "Google"
@@ -19,9 +19,19 @@ class Service(str, enum.Enum):
 
     def __str__(self) -> str:
         return self.value
+    def requires_token(self) -> bool:
+        """
+        Returns True if the service requires token and False otherwise.
+        """
+
+        match self:
+            case Service.AristoteOnMyDocker:
+                return False
+            case _:
+                return True
 
 service_cooldown = { # in ms
-        Service.Aristote:   0,
+        Service.AristoteOnMyDocker:   0,
         Service.Anthropic:  5000,
         Service.OpenAI:     5000,
         Service.Google:     5000,

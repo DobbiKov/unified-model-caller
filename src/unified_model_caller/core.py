@@ -127,7 +127,7 @@ class LLMCaller:
 
 
 
-    @_handler([Service.Aristote])
+    @_handler([Service.AristoteOnMyDocker])
     def _call_aristote(self, prompt: str) -> str:
         """Handles the API call to Artistote models"""
         import requests
