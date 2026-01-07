@@ -29,6 +29,9 @@ class Service(str, enum.Enum):
                 return False
             case _:
                 return True
+    @classmethod
+    def get_all_services(cls) -> list[str]:
+        return [e.value for e in Service]
 
 service_cooldown = { # in ms
         Service.AristoteOnMyDocker:   0,
