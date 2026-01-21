@@ -4,6 +4,7 @@ A small lightweight library for unified LLMs callings.
 
 ## Supported services 
 - Aristote
+- Ilaas
 - Google (gemini)
 - Anthropic (claude)
 - OpenAI (gpt)
@@ -33,6 +34,22 @@ def main():
     response = caller.call("What is a matrix?") 
     print(response)
 
+if __name__ == "__main__":
+    main()
+```
+
+### Ilaas example
+
+```py
+from unified_model_caller import LLMCaller
+
+def main():
+    # initialize caller
+    caller = LLMCaller("ilaas", "your-model-name", "api-key")
+
+    # make a call
+    response = caller.call("What is a matrix?")
+    print(response)
 
 if __name__ == "__main__":
     main()
