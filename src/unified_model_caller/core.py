@@ -42,7 +42,7 @@ class LLMCaller:
         Args:
             service (str): The LLM service to use.
                            Supported services: 'openai', 'anthropic', 'google'.
-                           Experimental: 'xai', 'aristote'.
+                           Experimental: 'xai', 'aristote', 'ilaas'.
             model (str): The model to use for the specified service.
         """
         self.service = Service.from_str(service.lower())
@@ -139,6 +139,19 @@ class LLMCaller:
             "messages": [{"role": "user", "content":prompt}],  
         }
         response = requests.post(aristote_API_ENDPOINT, json=data)
+        return response.json().get("choices")[0].get("message").get("content")
+
+    @_handler([Service.Ilaas])
+    def _call_ilaas(self, prompt: str) -> str:
+        """Handles the API call to Ilaas models"""
+        import requests
+        ilaas_API_ENDPOINT = "https://llm.ilaas.fr/v1/chat/completions"
+        model = self.model
+        data = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        response = requests.post(ilaas_API_ENDPOINT, json=data)
         return response.json().get("choices")[0].get("message").get("content")
 
 

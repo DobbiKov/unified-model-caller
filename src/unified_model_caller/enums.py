@@ -5,6 +5,7 @@ from unified_model_caller.errors import InvalidServiceError
 class Service(str, enum.Enum):
     """Enumeration for supported languages."""
     AristoteOnMyDocker = "AristoteOnMyDocker"
+    Ilaas = "Ilaas"
     Anthropic = "Anthropic"
     OpenAI = "OpenAI"
     Google = "Google"
@@ -27,6 +28,8 @@ class Service(str, enum.Enum):
         match self:
             case Service.AristoteOnMyDocker:
                 return False
+            case Service.Ilaas:
+                return True
             case _:
                 return True
     @classmethod
@@ -35,6 +38,7 @@ class Service(str, enum.Enum):
 
 service_cooldown = { # in ms
         Service.AristoteOnMyDocker:   0,
+        Service.Ilaas:      0,
         Service.Anthropic:  5000,
         Service.OpenAI:     5000,
         Service.Google:     5000,
