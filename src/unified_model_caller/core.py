@@ -156,7 +156,7 @@ class LLMCaller:
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
-        response = requests.post(ilaas_API_ENDPOINT, json=data)
+        response = requests.post(ilaas_API_ENDPOINT, json=data, headers=headers)
         return response.json().get("choices")[0].get("message").get("content")
 
 
