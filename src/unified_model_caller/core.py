@@ -147,9 +147,14 @@ class LLMCaller:
         import requests
         ilaas_API_ENDPOINT = "https://llm.ilaas.fr/v1/chat/completions"
         model = self.model
+        api_key = self.api_key
         data = {
             "model": model,
             "messages": [{"role": "user", "content": prompt}],
+        }
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
         }
         response = requests.post(ilaas_API_ENDPOINT, json=data)
         return response.json().get("choices")[0].get("message").get("content")
