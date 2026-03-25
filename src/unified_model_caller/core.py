@@ -47,6 +47,11 @@ class LLMCaller:
         time.sleep(self._service.service_cooldown() / 1000)
 
     @staticmethod
+    def get_services() -> list[str]:
+        """Returns the names of all currently registered services."""
+        return list(_SERVICES.keys())
+
+    @staticmethod
     def add_service(path: str) -> None:
         """
         Loads a BaseService subclass from an external Python file and registers it.
