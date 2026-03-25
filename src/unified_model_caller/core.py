@@ -46,6 +46,31 @@ class LLMCaller:
         """Waits the amount of time required by the service to respect rate limits."""
         time.sleep(self._service.service_cooldown() / 1000)
 
+    @staticmethod
+    def add_service(path: str) -> None:
+        """
+        Loads a BaseService subclass from an external Python file and registers it.
+
+        After calling this, the service becomes available to any LLMCaller instance
+        by the name returned from its get_name() method.
+
+        Args:
+            path (str): Absolute or relative path to the Python file.
+        """
+        spec = importlib.util.spec_from_file_location("_umc_dynamic", path)
+        if spec is None or spec.loader is None:
+            raise ValueError(f"Cannot load module from '{path}'")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)  # type: ignore[union-attr]
+        found = False
+        for _, cls in inspect.getmembers(module, inspect.isclass):
+            if issubclass(cls, BaseService) and cls is not BaseService:
+                name = cls("").get_name().lower()
+                _SERVICES[name] = cls
+                found = True
+        if not found:
+            raise ValueError(f"No BaseService subclass found in '{path}'")
+
     def call(self, prompt: str) -> str:
         """
         Sends a prompt to the configured LLM and returns the response.
