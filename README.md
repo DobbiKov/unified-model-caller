@@ -19,12 +19,12 @@ separately, you instantiate one `LLMCaller` and swap the service name.
 
 **Via pip:**
 ```sh
-pip install git+https://github.com/DobbiKov/unified-model-caller.git
+pip install unified-model-caller
 ```
 
 **Via uv:**
 ```sh
-uv add git+https://github.com/DobbiKov/unified-model-caller.git
+uv add unified-model-caller
 ```
 
 ## Usage
