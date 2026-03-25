@@ -46,6 +46,10 @@ class LLMCaller:
         """Waits the amount of time required by the service to respect rate limits."""
         time.sleep(self._service.service_cooldown() / 1000)
 
+    def requires_token(self) -> bool:
+        """Returns true if the service requires token and False otherwise."""
+        return self._service.requires_token()
+
     @staticmethod
     def get_services() -> list[str]:
         """Returns the names of all currently registered services."""
