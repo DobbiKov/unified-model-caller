@@ -1,22 +1,27 @@
 from unified_model_caller.services.base import BaseService
 
 
-class AristoteService(BaseService):
+class IlaasService(BaseService):
     def get_name(self) -> str:
-        return "aristoteonmydocker"
+        return "aristote"
 
     def requires_token(self) -> bool:
-        return False
+        return True
 
     def service_cooldown(self) -> int:
         return 0
 
     def call(self, model: str, prompt: str) -> str:
-        import requests
-        endpoint = "https://aristote-dispatcher.mydocker-run-vd.centralesupelec.fr/v1/chat/completions"
-        data = {
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-        response = requests.post(endpoint, json=data)
-        return response.json().get("choices")[0].get("message").get("content")
+        from openai import OpenAI
+        client = OpenAI(
+            base_url="https://llm.aristote.education/v1",
+            api_key="sk-...",
+        )
+         
+        resp = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            stream=False,
+        )
+        return resp.choices[0].text or ""
+        
