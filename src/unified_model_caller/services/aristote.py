@@ -12,16 +12,16 @@ class IlaasService(BaseService):
         return 0
 
     def call(self, model: str, prompt: str) -> str:
-        from openai import OpenAI
-        client = OpenAI(
-            base_url="https://llm.aristote.education/v1",
-            api_key=self.api_key
-        )
-         
-        resp = client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            stream=False,
-        )
-        return resp.choices[0].text or ""
+        import requests
+        endpoint = "https://llm.aristote.education/v1/chat/completions"
+        data = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        response = requests.post(endpoint, json=data, headers=headers)
+        return response.json().get("choices")[0].get("message").get("content")
         
