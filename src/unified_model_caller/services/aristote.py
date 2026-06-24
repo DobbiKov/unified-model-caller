@@ -15,7 +15,7 @@ class IlaasService(BaseService):
         from openai import OpenAI
         client = OpenAI(
             base_url="https://llm.aristote.education/v1",
-            api_key="sk-...",
+            api_key=self.api_key
         )
          
         resp = client.chat.completions.create(
