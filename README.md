@@ -13,7 +13,8 @@ separately, you instantiate one `LLMCaller` and swap the service name.
 | `google` | Google (Gemini models) |
 | `xai` | xAI (Grok models) |
 | `ilaas` | Ilaas |
-| `aristoteonmydocker` | Aristote on MyDocker |
+| `aristote-on-mydocker` | Aristote on MyDocker |
+| `aristote` | Aristote |
 
 ## Installation
 
