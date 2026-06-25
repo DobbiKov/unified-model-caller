@@ -3,7 +3,7 @@ from unified_model_caller.services.base import BaseService
 
 class AristoteService(BaseService):
     def get_name(self) -> str:
-        return "aristoteonmydocker"
+        return "aristote-on-mydocker"
 
     def requires_token(self) -> bool:
         return False
