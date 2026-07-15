@@ -40,6 +40,7 @@ class LLMCaller:
         if service_key not in _SERVICES:
             raise InvalidServiceError(f"'{service}' is not a valid service. Available: {list(_SERVICES.keys())}")
         self.model = model
+        self.service_name = service
         self._service: BaseService = _SERVICES[service_key](api_key)
 
     def wait_cooldown(self) -> None:
