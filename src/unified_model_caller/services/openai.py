@@ -1,5 +1,5 @@
 from unified_model_caller.services.base import BaseService
-from unified_model_caller.errors import ApiCallError
+from unified_model_caller.errors import ApiConnectionError, InvalidResponseError, error_from_status
 
 
 class OpenAIService(BaseService):
@@ -15,11 +15,19 @@ class OpenAIService(BaseService):
     def call(self, model: str, prompt: str) -> str:
         import openai
         client = openai.OpenAI(api_key=self.api_key)
-        response = client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}]
-        )
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}]
+            )
+        except openai.APIStatusError as e:
+            raise error_from_status(e.status_code, f"OpenAI API call failed: {e}", service=self.get_name()) from e
+        except openai.APIConnectionError as e:
+            raise ApiConnectionError(f"Could not reach the OpenAI API: {e}", service=self.get_name()) from e
         res = response.choices[0].message.content
         if res is None:
-            raise ApiCallError(f"The call to the OpenAI's {model} model didn't provide any text result")
+            raise InvalidResponseError(
+                f"The call to the OpenAI's {model} model didn't provide any text result",
+                service=self.get_name(),
+            )
         return res

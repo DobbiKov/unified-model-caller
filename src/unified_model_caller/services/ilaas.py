@@ -12,15 +12,11 @@ class IlaasService(BaseService):
         return 0
 
     def call(self, model: str, prompt: str) -> str:
-        import requests
-        endpoint = "https://llm.ilaas.fr/v1/chat/completions"
-        data = {
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
-        response = requests.post(endpoint, json=data, headers=headers)
-        return response.json().get("choices")[0].get("message").get("content")
+        from unified_model_caller.services._http import post_chat_completion
+        return post_chat_completion(
+            endpoint="https://llm.ilaas.fr/v1/chat/completions",
+            model=model,
+            prompt=prompt,
+            service=self.get_name(),
+            api_key=self.api_key,
+        )

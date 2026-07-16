@@ -12,11 +12,10 @@ class AristoteService(BaseService):
         return 0
 
     def call(self, model: str, prompt: str) -> str:
-        import requests
-        endpoint = "https://aristote-dispatcher.mydocker-run-vd.centralesupelec.fr/v1/chat/completions"
-        data = {
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-        response = requests.post(endpoint, json=data)
-        return response.json().get("choices")[0].get("message").get("content")
+        from unified_model_caller.services._http import post_chat_completion
+        return post_chat_completion(
+            endpoint="https://aristote-dispatcher.mydocker-run-vd.centralesupelec.fr/v1/chat/completions",
+            model=model,
+            prompt=prompt,
+            service=self.get_name(),
+        )

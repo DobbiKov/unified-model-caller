@@ -1,5 +1,10 @@
 from unified_model_caller.services.base import BaseService
-from unified_model_caller.errors import ApiCallError, ModelOverloadedError
+from unified_model_caller.errors import (
+    ApiCallError,
+    ApiConnectionError,
+    ModelOverloadedError,
+    error_from_status,
+)
 
 
 class GoogleService(BaseService):
@@ -14,8 +19,8 @@ class GoogleService(BaseService):
 
     def call(self, model: str, prompt: str) -> str:
         from google import genai
+        from google.genai import errors as g_errors
         from google.genai import types as g_types
-        from google.api_core import exceptions as google_exceptions
 
         client = genai.Client(api_key=self.api_key)
 
@@ -30,16 +35,20 @@ class GoogleService(BaseService):
             )
             return response.text or ""
 
-        except google_exceptions.ResourceExhausted as e:
-            raise ModelOverloadedError(f"Gemini model overloaded: {e}") from e
-        except google_exceptions.TooManyRequests as e:
-            error_msg = str(e)
-            if "overloaded" in error_msg.lower():
-                raise ModelOverloadedError(f"Gemini model overloaded: {error_msg}") from e
-            raise ApiCallError(f"Gemini API call failed: {error_msg}") from e
+        except g_errors.APIError as e:
+            error_msg = f"Gemini API call failed: {e}"
+            # Gemini reports overload as 429 RESOURCE_EXHAUSTED or 503 UNAVAILABLE
+            if "overload" in str(e).lower():
+                raise ModelOverloadedError(
+                    f"Gemini model overloaded: {e}", service=self.get_name(), status_code=e.code
+                ) from e
+            if isinstance(e.code, int):
+                raise error_from_status(e.code, error_msg, service=self.get_name()) from e
+            raise ApiCallError(error_msg, service=self.get_name()) from e
+        except ConnectionError as e:
+            raise ApiConnectionError(f"Could not reach the Gemini API: {e}", service=self.get_name()) from e
         except Exception as e:
             error_msg = str(e)
-            if "overloaded" in error_msg.lower():
-                raise ModelOverloadedError(f"Gemini model overloaded: {error_msg}") from e
-            print(f"Error communicating with Gemini API: {e}")
-            raise ApiCallError(f"Gemini API call failed: {e}") from e
+            if "overload" in error_msg.lower():
+                raise ModelOverloadedError(f"Gemini model overloaded: {error_msg}", service=self.get_name()) from e
+            raise ApiCallError(f"Gemini API call failed: {e}", service=self.get_name()) from e
